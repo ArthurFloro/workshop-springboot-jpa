@@ -2,9 +2,11 @@ package com.arthurfloro.course.services;
 
 import com.arthurfloro.course.entities.User;
 import com.arthurfloro.course.repositories.UserRepository;
+import com.arthurfloro.course.services.exceptions.DataBaseException;
 import com.arthurfloro.course.services.exceptions.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,7 +32,13 @@ public class UserService {
 	}
 
 	public void delete(Long id) {
-		repository.deleteById(id);
+		try {
+			repository.deleteById(id);
+		} catch (EmptyResultDataAccessException e) {
+			throw new ResourceNotFoundException(id);
+		} catch (RuntimeException e) {
+			throw new DataBaseException(e.getMessage());
+		}
 	}
 
 	@Transactional
